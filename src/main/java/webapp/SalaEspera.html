@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala de Espera - EN SALA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
+    <link rel="stylesheet" href="css/SalaEspera.css"/>
+</head>
+<body>
+    <header class="encabezado-sala">
+        <div class="contador-monedas-sala">
+            <div class="moneda-icono">
+                <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
+            </div>
+            <span class="cantidad-monedas">5,000</span>
+            
+        </div>
+        <div class="boton-config">
+            <span class="icono-config">⚙️</span>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <h1 class="titulo">EN SALA</h1>
+
+        <div class="area-jugadores">
+            <div class="rejilla-jugadores">
+                <div class="espacio-jugador">
+                    <div class="avatar-jugador">
+                        <img src=assets/fondo2.jpeg alt="Alexa777">
+                    </div>
+                    <div class="nombre-jugador">Alexa777</div>
+                </div>
+                <div class="espacio-jugador">
+                    <div class="avatar-jugador"></div>
+                </div>
+                <div class="espacio-jugador">
+                    <div class="avatar-jugador"></div>
+                </div>
+                <div class="espacio-jugador">
+                    <div class="avatar-jugador"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-cuota">
+            <div class="etiqueta-cuota">Cuota de Entrada</div>
+            <div class="caja-cuota">
+                <div class="moneda-icono">
+                    <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="alt"/>
+                </div>
+                <input type="number" class="input-cuota" value="500" min="0" step="50">
+            </div>
+        </div>
+
+        <div class="seccion-codigo">
+            <div class="etiqueta-codigo">Código de la sala:</div>
+            <div class="codigo-sala">2122724</div>
+        </div>
+
+        <div class="acciones">
+            <button class="btn btn-iniciar">Iniciar Partida</button>
+            <button class="btn btn-cancelar">Cancelar</button>
+        </div>
+    </div>
+
+</body>
+</html>
