@@ -1,155 +1,49 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <title>Parchís Star - Inicio</title>
-    <meta charset="UTF-8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
-</head>
-<body>
-    <header>
-        <div class="contenedor-izquierdo">
-            <div class="tarjeta">
-                <div class="user">
-                    <img class="img-usuario" id="avatar-usuario" src="assets/fondo2.jpeg" alt="">
-                    <span class="nombre-usuario" id="nombre-usuario">Jugador</span>
+<html>
+    <head>
+        <title>Start Page</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
+
+
+    </head>
+    <body>
+        <header>
+            <div class="contenedor-izquierdo">
+                <div class="tarjeta">
+                    <div class="user">
+                        <img class="img-usuario" src=assets/fondo2.jpeg alt="">
+                        <span class="nombre-usuario">Alexa777</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="contador-monedas">
-                <div class="moneda-icono">
-                    <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
-                </div>
-                <span class="cantidad-monedas" id="cantidad-monedas">5,000</span>
-            </div>
-        </div>
-
-        <div class="boton-config">
-            <span class="icono-config">⚙️</span>
-        </div>
-    </header>
-
-    <div class="contenido-central">
-        <h1 class="titulo">¿Tienes código de sala?</h1>
-
-        <div class="contenedor-codigo">
-            <input type="text" class="input-codigo" id="input-codigo" placeholder="1234567">
-            <button class="boton-unirse" onclick="unirseASala()">Unirse</button>
-        </div>
-
-        <p class="mensaje-error" id="mensaje-error" style="display: none;">Error: Código inválido</p>
-
-        <button class="boton-crear" onclick="crearSala()">Crear Sala</button>
-    </div>
-
-    <script>
-        const WS_PORT = 8887;
-        const WS_URL = `ws://localhost:${WS_PORT}`;
-        let socket = null;
-        let usuario = null;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            cargarDatosUsuario();
-            conectarWebSocket();
-        });
-
-        function cargarDatosUsuario() {
-            const datosGuardados = localStorage.getItem('usuario');
-            
-            if (!datosGuardados) {
-                window.location.href = 'seleccion-usuario.html';
-                return;
-            }
-
-            usuario = JSON.parse(datosGuardados);
-            
-            document.getElementById('nombre-usuario').textContent = usuario.nombre;
-            document.getElementById('cantidad-monedas').textContent = usuario.monedas.toLocaleString();
-            
-            const avatarImg = document.getElementById('avatar-usuario');
-            if (usuario.avatar === 'custom' && usuario.imagenPersonalizada) {
-                avatarImg.src = usuario.imagenPersonalizada;
-            } else {
-                avatarImg.src = `assets/${usuario.avatar}.png`;
-            }
-        }
-
-        function conectarWebSocket() {
-            socket = new WebSocket(WS_URL);
-            
-            socket.onopen = function() {
-                console.log('✅ Conectado al servidor');
-            };
-            
-            socket.onmessage = function(event) {
-                const datos = JSON.parse(event.data);
-                console.log('📨 Mensaje recibido:', datos);
-                procesarMensaje(datos);
-            };
-            
-            socket.onerror = function(error) {
-                console.error('❌ Error WebSocket:', error);
-            };
-            
-            socket.onclose = function() {
-                console.log('🔌 Desconectado');
-                setTimeout(conectarWebSocket, 3000);
-            };
-        }
-
-        function procesarMensaje(datos) {
-            switch(datos.tipo) {
-                case 'SALA_CREADA':
-                case 'SALA_UNIDA':
-                    localStorage.setItem('codigoSala', datos.codigoSala);
-                    console.log('➡️ Redirigiendo a Sala de Espera');
-                    window.location.href = 'sala-espera.html';
-                    break;
+                <div class="contador-monedas">
+                    <div class="moneda-icono">
+                        <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
+                    </div>
+                    <span class="cantidad-monedas">5,000</span>
                     
-                case 'ERROR':
-                    mostrarError(datos.mensaje);
-                    break;
-            }
-        }
+                </div>
+            </div>
 
-        function crearSala() {
-            // Por ahora, generar código aleatorio
-            const codigoSala = Math.floor(1000000 + Math.random() * 9000000).toString();
-            localStorage.setItem('codigoSala', codigoSala);
-            localStorage.setItem('esAnfitrion', 'true');
-            
-            console.log('🏠 Sala creada:', codigoSala);
-            console.log('➡️ Redirigiendo a Sala de Espera');
-            window.location.href = 'sala-espera.html';
-        }
+            <div class="boton-config">
+                <span class="icono-config">⚙️</span>
+            </div>
+        </header>
 
-        function unirseASala() {
-            const codigo = document.getElementById('input-codigo').value.trim();
-            
-            if (!codigo) {
-                mostrarError('Ingresa un código de sala');
-                return;
-            }
+        <div class="contenido-central">
+            <h1 class="titulo">¿Tienes código de sala?</h1>
 
-            localStorage.setItem('codigoSala', codigo);
-            localStorage.setItem('esAnfitrion', 'false');
-            
-            console.log('🚪 Uniéndose a sala:', codigo);
-            console.log('➡️ Redirigiendo a Sala de Espera');
-            window.location.href = 'sala-espera.html';
-        }
+            <div class="contenedor-codigo">
+                <input type="text" class="input-codigo" placeholder="1234567" value="1234567">
+                <button class="boton-unirse">Unirse</button>
+            </div>
 
-        function mostrarError(mensaje) {
-            const errorElement = document.getElementById('mensaje-error');
-            errorElement.textContent = 'Error: ' + mensaje;
-            errorElement.style.display = 'block';
-            
-            setTimeout(() => {
-                errorElement.style.display = 'none';
-            }, 3000);
-        }
-    </script>
-</body>
+            <p class="mensaje-error">Error: Codigo invalido</p>
+
+            <button class="boton-crear">Crear Sala</button>
+        </div>
 </html>
