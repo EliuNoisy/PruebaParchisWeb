@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala de Espera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
+    <link rel="stylesheet" href="css/SalaEspera.css"/>
+</head>
+<body>
+    <header class="encabezado-sala">
+        <div class="contador-monedas-sala">
+            <div class="moneda-icono">
+                <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
+            </div>
+            <span class="cantidad-monedas" id="cantidad-monedas">5,000</span>
+        </div>
+        <div class="boton-config">
+            <span class="icono-config">⚙️</span>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <h1 class="titulo">EN SALA</h1>
+
+        <div class="area-jugadores">
+            <div class="rejilla-jugadores" id="rejilla-jugadores">
+                <div class="espacio-jugador" data-slot="0">
+                    <div class="avatar-jugador"></div>
+                    <div class="nombre-jugador">Esperando...</div>
+                </div>
+                <div class="espacio-jugador" data-slot="1">
+                    <div class="avatar-jugador"></div>
+                    <div class="nombre-jugador">Esperando...</div>
+                </div>
+                <div class="espacio-jugador" data-slot="2">
+                    <div class="avatar-jugador"></div>
+                    <div class="nombre-jugador">Esperando...</div>
+                </div>
+                <div class="espacio-jugador" data-slot="3">
+                    <div class="avatar-jugador"></div>
+                    <div class="nombre-jugador">Esperando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-cuota">
+            <div class="etiqueta-cuota">Cuota de Entrada</div>
+            <div class="caja-cuota">
+                <div class="moneda-icono">
+                    <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt=""/>
+                </div>
+                <input type="number" class="input-cuota" id="input-cuota" value="500" min="0" step="50">
+            </div>
+        </div>
+
+        <div class="seccion-codigo">
+            <div class="etiqueta-codigo">Código de la sala:</div>
+            <div class="codigo-sala" id="codigo-sala">------</div>
+        </div>
+
+        <div class="acciones">
+            <button class="btn btn-iniciar" id="btn-iniciar" onclick="iniciarPartida()">
+                Iniciar Partida
+            </button>
+            <button class="btn btn-cancelar" onclick="salirDeSala()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let usuario = null;
+        let codigoSala = null;
+        let esAnfitrion = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            cargarDatos();
+            simularJugadores();
+        });
+
+        function cargarDatos() {
+            const datosGuardados = localStorage.getItem('usuario');
+            if (!datosGuardados) {
+                window.location.href = 'seleccion-usuario.html';
+                return;
+            }
+            usuario = JSON.parse(datosGuardados);
+            document.getElementById('cantidad-monedas').textContent = usuario.monedas.toLocaleString();
+
+            codigoSala = localStorage.getItem('codigoSala');
+            if (!codigoSala) {
+                window.location.href = 'principal.html';
+                return;
+            }
+            document.getElementById('codigo-sala').textContent = codigoSala;
+
+            esAnfitrion = localStorage.getItem('esAnfitrion') === 'true';
+        }
+
+        function simularJugadores() {
+            // Agregar al usuario actual
+            const slots = document.querySelectorAll('.espacio-jugador');
+            const avatar = slots[0].querySelector('.avatar-jugador');
+            const nombre = slots[0].querySelector('.nombre-jugador');
+            
+            if (usuario.imagenPersonalizada) {
+                avatar.style.backgroundImage = `url(${usuario.imagenPersonalizada})`;
+            } else {
+                avatar.style.backgroundImage = `url(assets/${usuario.avatar}.png)`;
+            }
+            avatar.style.backgroundSize = 'cover';
+            avatar.style.backgroundPosition = 'center';
+            nombre.textContent = usuario.nombre;
+        }
+
+        function iniciarPartida() {
+            console.log('🎮 Iniciando partida...');
+            console.log('➡️ Redirigiendo a Comenzando Partida');
+            window.location.href = 'comenzando-partida.html';
+        }
+
+        function salirDeSala() {
+            localStorage.removeItem('codigoSala');
+            localStorage.removeItem('esAnfitrion');
+            window.location.href = 'principal.html';
+        }
+    </script>
+</body>
+</html>

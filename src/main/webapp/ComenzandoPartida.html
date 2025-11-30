@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comenzando la partida</title>
+  <link rel="stylesheet" href="css/ComenzandoPartida.css">
+</head>
+<body>
+
+<div class="pantalla-partida">
+  <h1 class="titulo-partida">Comenzando la partida</h1>
+
+  <img src="assets/Cargandopartida.png" alt="Cargando partida" class="imagen-carga">
+
+  <h2 class="subtitulo-partida" id="subtitulo-partida">Jugadores listos 3/4</h2>
+</div>
+
+<script>
+    // Simular carga y redirigir al tablero después de 3 segundos
+    let contador = 0;
+    const intervalo = setInterval(() => {
+        contador++;
+        document.getElementById('subtitulo-partida').textContent = 
+            `Jugadores listos ${Math.min(contador, 4)}/4`;
+        
+        if (contador >= 4) {
+            clearInterval(intervalo);
+            setTimeout(() => {
+                console.log('✅ Partida lista');
+                console.log('➡️ Redirigiendo al Tablero');
+                window.location.href = 'tablero.html';
+            }, 1000);
+        }
+    }, 800);
+</script>
+
+</body>
+</html>

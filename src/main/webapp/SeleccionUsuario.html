@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Selecciona tu avatar</title>
+  <link rel="stylesheet" href="css/SeleccionUsuario.css">
+</head>
+<body>
+
+<div class="pagina-avatar">
+  <h1 class="titulo-avatar">Selecciona tu avatar</h1>
+
+  <form id="formulario-perfil" onsubmit="guardarPerfil(event)">
+
+    <!-- FILA 1 -->
+    <div class="fila-avatares fila1">
+
+      <!-- Avatar personalizado -->
+      <div class="grupo-avatar-upload">
+        <label class="btn-avatar" id="avatar-personalizado">
+          <input type="file" id="file-personaje0" name="avatarFile" accept="image/*" hidden>
+          <img id="img-personaje0" src="assets/personaje0.png" class="img-avatar">
+          <img src="assets/centropersonaje0.png" class="img-centro">
+        </label>
+        <div class="etiqueta-upload">Cargar Imagen</div>
+      </div>
+
+      <!-- Avatar 1 -->
+      <button type="button" class="btn-avatar" data-value="personaje1">
+        <img src="assets/personaje1.png" class="img-avatar">
+      </button>
+
+      <!-- Avatar 2 -->
+      <button type="button" class="btn-avatar" data-value="personaje2">
+        <img src="assets/personaje2.png" class="img-avatar">
+      </button>
+
+      <!-- Avatar 3 -->
+      <button type="button" class="btn-avatar" data-value="personaje3">
+        <img src="assets/personaje3.png" class="img-avatar">
+      </button>
+
+      <!-- Botón +4 -->
+      <button type="button" class="btn-avatar boton-extra" id="boton-extra">
+        +4
+      </button>
+
+    </div>
+
+    <!-- FILA EXTRA -->
+    <div class="fila-avatares fila2" style="display:none;">
+      <button type="button" class="btn-avatar avatar-extra" data-value="extra1">
+        <img src="assets/1.jpg" class="img-avatar">
+      </button>
+      <button type="button" class="btn-avatar avatar-extra" data-value="extra2">
+        <img src="assets/2.jpg" class="img-avatar">
+      </button>
+      <button type="button" class="btn-avatar avatar-extra" data-value="extra3">
+        <img src="assets/3.jpg" class="img-avatar">
+      </button>
+      <button type="button" class="btn-avatar avatar-extra" data-value="extra4">
+        <img src="assets/4.jpg" class="img-avatar">
+      </button>
+    </div>
+   
+    <!-- NOMBRE DE USUARIO -->
+    <h2 class="subtitulo-avatar">Escribe tu nombre de usuario</h2>
+
+    <div class="bloque-usuario">
+      <input class="username-input" type="text" name="username" 
+             placeholder="Nombre de usuario" required>
+      <input type="hidden" id="avatar-selected" name="avatarSelected">
+      <button class="save-btn" type="submit">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const fileInput0 = document.getElementById('file-personaje0');
+  const imgPersonaje0 = document.getElementById('img-personaje0');
+  const labelAvatar = document.getElementById('avatar-personalizado');
+  const hiddenAvatar = document.getElementById('avatar-selected');
+  const avatarButtons = document.querySelectorAll('.btn-avatar[type="button"]');
+  const centroImagen0 = document.querySelector('#avatar-personalizado .img-centro');
+  const botonExtra = document.getElementById("boton-extra");
+
+  let avatarSeleccionado = null;
+  let imagenPersonalizada = null;
+
+  // Selección de avatares predefinidos
+  avatarButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      if (button.id !== 'boton-extra') {
+        document.querySelectorAll('.btn-avatar')
+          .forEach(b => b.classList.remove('seleccionado'));
+
+        button.classList.add('seleccionado');
+        hiddenAvatar.value = button.dataset.value;
+        avatarSeleccionado = button.dataset.value;
+        imagenPersonalizada = null;
+      }
+    });
+  });
+
+  // Avatar personalizado
+  labelAvatar.addEventListener('click', () => {
+    document.querySelectorAll('.btn-avatar')
+      .forEach(b => b.classList.remove('seleccionado'));
+
+    labelAvatar.classList.add('seleccionado');
+    hiddenAvatar.value = 'custom';
+    avatarSeleccionado = 'custom';
+  });
+
+  // Cargar imagen personalizada
+  fileInput0.addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      imgPersonaje0.src = reader.result;
+      imagenPersonalizada = reader.result;
+      if (centroImagen0) centroImagen0.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+
+    fileInput0.value = '';
+  });
+
+  // Mostrar fila extra
+  botonExtra.addEventListener("click", () => {
+    document.querySelector(".fila2").style.display = "flex";
+  });
+
+  // Guardar perfil
+  function guardarPerfil(event) {
+    event.preventDefault();
+
+    const username = document.querySelector('input[name="username"]').value;
+
+    if (!avatarSeleccionado) {
+      alert('Por favor selecciona un avatar');
+      return;
+    }
+
+    // Guardar datos del usuario
+    const datosUsuario = {
+      nombre: username,
+      avatar: avatarSeleccionado,
+      imagenPersonalizada: imagenPersonalizada,
+      monedas: 5000
+    };
+
+    localStorage.setItem('usuario', JSON.stringify(datosUsuario));
+
+    console.log('✅ Usuario guardado:', datosUsuario);
+    console.log('➡️ Redirigiendo a Pantalla Principal');
+    
+    // Redirigir a pantalla principal
+    window.location.href = 'principal.html';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Parchís Star</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <!-- Fuente Kufam desde Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Kufam:wght@700;900&display=swap" rel="stylesheet">
+        
+        <link rel="stylesheet" href="css/Pantalladecarga.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="titulo">Parchís<br>Star</h1>
+            
+            <img src="assets/cargando.png" class="icono-cargando" alt="">
+            
+            <p class="subtitulo">By<br>Equipo 2</p>
+        </div>
+
+        <script>
+            // Redirigir a Registro después de 3 segundos
+            setTimeout(() => {
+                console.log('✅ Carga completada - Redirigiendo a Registro');
+                window.location.href = 'registro.html';
+            }, 3000);
+        </script>
+
+        <style>
+            .icono-cargando {
+                animation: rotar 2s linear infinite;
+            }
+
+            @keyframes rotar {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    </body>
+</html>
