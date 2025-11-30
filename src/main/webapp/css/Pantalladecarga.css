@@ -1,0 +1,55 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/css.css to edit this template
+*/
+/* 
+    Created on : 29 nov 2025, 1:39:35 a.m.
+    Author     : jorge
+*/
+
+/* Fondo morado y tipografía Kufam */
+body {
+    font-family: 'Kufam', sans-serif;
+    background: #4C185E;
+    margin: 0;
+    padding: 0;
+}
+
+/* Centrar todo en pantalla */
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;       
+}
+
+
+.titulo {
+    font-size: 90px;
+    font-weight: 900;
+    color: #FFE19C;    
+    text-align: center;
+    line-height: 0.9;
+}
+
+
+.cargando {
+    width: 170px;        
+    height: 170px;
+    padding: 40px;        
+    background: #8A166F;  
+    border-radius: 0;     
+    box-sizing: border-box;
+}
+
+
+/* Texto “By / Equipo 2” */
+.subtitulo {
+    font-size: 26px;
+    color: #FFE19C;
+    text-align: center;
+    line-height: 1.1;
+}
+
