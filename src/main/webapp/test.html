@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test WebSocket - Parchis Star</title>
+    <title>Test Parchis Star - WebSocket</title>
     <style>
         * {
             margin: 0;
@@ -15,9 +15,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
 
@@ -26,8 +23,8 @@
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         h1 {
@@ -56,17 +53,9 @@
             margin-bottom: 10px;
         }
 
-        #status.disconnected {
-            color: #e74c3c;
-        }
-
-        #status.connected {
-            color: #27ae60;
-        }
-
-        #status.connecting {
-            color: #f39c12;
-        }
+        #status.disconnected { color: #e74c3c; }
+        #status.connected { color: #27ae60; }
+        #status.connecting { color: #f39c12; }
 
         .port-input {
             width: 100%;
@@ -76,11 +65,6 @@
             border-radius: 8px;
             margin-bottom: 15px;
             text-align: center;
-        }
-
-        .port-input:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .btn {
@@ -110,23 +94,27 @@
             color: white;
         }
 
-        .btn-secondary:hover {
-            background: #c0392b;
-        }
-
         .btn-test {
             background: #3498db;
             color: white;
         }
 
-        .btn-test:hover {
-            background: #2980b9;
+        .btn-success {
+            background: #27ae60;
+            color: white;
         }
 
         .btn:disabled {
             background: #95a5a6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .log-box {
@@ -146,31 +134,57 @@
             border-bottom: 1px solid #34495e;
         }
 
-        .log-entry:last-child {
-            border-bottom: none;
-        }
+        .log-info { color: #3498db; }
+        .log-success { color: #27ae60; }
+        .log-error { color: #e74c3c; }
+        .log-warning { color: #f39c12; }
 
-        .log-info {
-            color: #3498db;
-        }
-
-        .log-success {
-            color: #27ae60;
-        }
-
-        .log-error {
-            color: #e74c3c;
-        }
-
-        .log-warning {
-            color: #f39c12;
-        }
-
-        .actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .game-state {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
             margin-top: 20px;
+        }
+
+        .game-state h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .game-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .dado-result {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .fichas-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .ficha-card {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ficha-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .instruction {
@@ -180,19 +194,19 @@
             margin-bottom: 20px;
             border-radius: 5px;
         }
-
-        .instruction strong {
-            color: #856404;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎲 Parchis Star</h1>
-        <p class="subtitle">Test de Conexión WebSocket</p>
+        <p class="subtitle">Cliente WebSocket - Test Completo</p>
 
         <div class="instruction">
-            <strong>⚠️ IMPORTANTE:</strong> Copia el puerto que aparece en tu consola Java y pégalo abajo.
+            <strong>📋 INSTRUCCIONES:</strong><br>
+            1. Ejecuta <code>ParchisWeb.java</code> en NetBeans<br>
+            2. Copia el puerto de la consola<br>
+            3. Pégalo abajo y conecta<br>
+            4. Inicia partida y juega
         </div>
 
         <div class="status-box">
@@ -200,12 +214,12 @@
             <div id="statusDetails">Esperando conexión...</div>
         </div>
 
+        <!-- CONEXIÓN -->
         <input 
             type="number" 
             id="portInput" 
             class="port-input" 
             placeholder="Ingresa el puerto (ej: 56584)"
-            value="56584"
         >
 
         <button id="btnConnect" class="btn btn-primary" onclick="conectar()">
@@ -216,19 +230,46 @@
             ❌ Desconectar
         </button>
 
-        <button class="btn btn-test" onclick="iniciarPartida()" id="btnIniciar" disabled style="background: #27ae60;">
-            🎮 INICIAR PARTIDA
-        </button>
+        <!-- ACCIONES DEL JUEGO -->
+        <div style="margin-top: 20px;">
+            <button class="btn btn-success" onclick="iniciarPartida()" id="btnIniciar" disabled>
+                🎮 INICIAR PARTIDA
+            </button>
 
-        <div class="actions">
-            <button class="btn btn-test" onclick="enviarPrueba('OBTENER_ESTADO')" id="btnTest1" disabled>
-                📊 Test: Estado
-            </button>
-            <button class="btn btn-test" onclick="enviarPrueba('LANZAR_DADO')" id="btnTest2" disabled>
-                🎲 Test: Dado
-            </button>
+            <div class="actions">
+                <button class="btn btn-test" onclick="lanzarDado()" id="btnDado" disabled>
+                    🎲 Lanzar Dado
+                </button>
+                <button class="btn btn-test" onclick="obtenerEstado()" id="btnEstado" disabled>
+                    📊 Ver Estado
+                </button>
+            </div>
         </div>
 
+        <!-- ESTADO DEL JUEGO -->
+        <div class="game-state" id="gameState" style="display: none;">
+            <h3>🎮 Estado de la Partida</h3>
+            
+            <div class="game-info">
+                <strong>Turno actual:</strong> <span id="turnoActual">-</span>
+            </div>
+
+            <div id="dadoResult" class="dado-result" style="display: none;">
+                🎲 <span id="valorDado">-</span>
+            </div>
+
+            <div id="fichasDisponibles" style="display: none;">
+                <h4>Fichas Disponibles:</h4>
+                <div class="fichas-list" id="fichasList"></div>
+            </div>
+
+            <div class="game-info" id="jugadoresInfo">
+                <strong>Jugadores:</strong>
+                <div id="jugadoresList"></div>
+            </div>
+        </div>
+
+        <!-- LOG -->
         <div class="log-box" id="logBox">
             <div class="log-entry log-info">💡 Sistema listo. Ingresa el puerto y conecta.</div>
         </div>
@@ -236,7 +277,7 @@
 
     <script>
         let ws = null;
-        let reconectando = false;
+        let valorDadoActual = 0;
 
         function log(mensaje, tipo = 'info') {
             const logBox = document.getElementById('logBox');
@@ -251,36 +292,24 @@
         }
 
         function actualizarEstado(texto, clase, detalles) {
-            const status = document.getElementById('status');
-            const statusDetails = document.getElementById('statusDetails');
-            
-            status.textContent = texto;
-            status.className = clase;
-            statusDetails.textContent = detalles;
+            document.getElementById('status').textContent = texto;
+            document.getElementById('status').className = clase;
+            document.getElementById('statusDetails').textContent = detalles;
         }
 
         function actualizarBotones(conectado) {
             document.getElementById('btnConnect').disabled = conectado;
             document.getElementById('btnDisconnect').disabled = !conectado;
-            document.getElementById('btnIniciar').disabled = !conectado;
-            document.getElementById('btnTest1').disabled = !conectado;
-            document.getElementById('btnTest2').disabled = !conectado;
             document.getElementById('portInput').disabled = conectado;
-        }
-
-        function iniciarPartida() {
-            if (!ws || ws.readyState !== WebSocket.OPEN) {
-                log('❌ No hay conexión activa', 'error');
-                return;
+            
+            if (conectado) {
+                document.getElementById('btnIniciar').disabled = false;
+                document.getElementById('btnEstado').disabled = false;
+            } else {
+                document.getElementById('btnIniciar').disabled = true;
+                document.getElementById('btnDado').disabled = true;
+                document.getElementById('btnEstado').disabled = true;
             }
-
-            const mensaje = {
-                accion: 'INICIAR_PARTIDA',
-                timestamp: Date.now()
-            };
-
-            log('🎮 Iniciando nueva partida...', 'info');
-            ws.send(JSON.stringify(mensaje));
         }
 
         function conectar() {
@@ -292,85 +321,218 @@
             }
 
             const url = `ws://localhost:${puerto}`;
-            log(`🔄 Intentando conectar a ${url}...`, 'info');
+            log(`🔄 Conectando a ${url}...`, 'info');
             actualizarEstado('🔄 Conectando...', 'connecting', 'Estableciendo conexión...');
 
             try {
                 ws = new WebSocket(url);
 
                 ws.onopen = function(event) {
-                    log('✅ ¡Conexión establecida exitosamente!', 'success');
+                    log('✅ ¡Conexión WebSocket establecida!', 'success');
                     actualizarEstado('🟢 Conectado', 'connected', `Puerto: ${puerto}`);
                     actualizarBotones(true);
-                    reconectando = false;
                 };
 
                 ws.onmessage = function(event) {
-                    log('📨 Mensaje recibido del servidor', 'success');
-                    
                     try {
                         const datos = JSON.parse(event.data);
-                        log(`   Tipo: ${datos.tipo}`, 'info');
-                        log(`   Contenido: ${JSON.stringify(datos, null, 2)}`, 'info');
-                        
-                        // Mostrar en consola del navegador también
-                        console.log('Mensaje del servidor:', datos);
+                        procesarMensaje(datos);
                     } catch (e) {
-                        log(`   Datos: ${event.data}`, 'info');
+                        log('⚠️ Mensaje no JSON: ' + event.data, 'warning');
                     }
                 };
 
                 ws.onerror = function(error) {
-                    log('❌ Error en la conexión WebSocket', 'error');
-                    log(`   Asegúrate que el servidor Java esté corriendo`, 'warning');
-                    console.error('Error WebSocket:', error);
-                    actualizarEstado('⚫ Error', 'disconnected', 'Fallo en la conexión');
+                    log('❌ Error en WebSocket', 'error');
+                    actualizarEstado('⚫ Error', 'disconnected', 'Error de conexión');
                 };
 
                 ws.onclose = function(event) {
                     log('🔴 Conexión cerrada', 'warning');
-                    log(`   Código: ${event.code}, Razón: ${event.reason || 'N/A'}`, 'info');
                     actualizarEstado('⚫ Desconectado', 'disconnected', 'Conexión cerrada');
                     actualizarBotones(false);
                     ws = null;
                 };
 
             } catch (error) {
-                log('❌ Error creando WebSocket: ' + error.message, 'error');
-                actualizarEstado('⚫ Error', 'disconnected', error.message);
+                log('❌ Error: ' + error.message, 'error');
             }
         }
 
         function desconectar() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                log('🔌 Cerrando conexión...', 'info');
+            if (ws) {
                 ws.close();
+                log('🔌 Desconectando...', 'info');
             }
         }
 
-        function enviarPrueba(accion) {
+        function procesarMensaje(datos) {
+            log(`📨 ${datos.tipo}`, 'success');
+            
+            switch(datos.tipo) {
+                case 'CONEXION_EXITOSA':
+                    log('✅ Servidor confirmó la conexión', 'success');
+                    break;
+                    
+                case 'PARTIDA_INICIADA':
+                    log('🎮 ¡Partida iniciada!', 'success');
+                    document.getElementById('gameState').style.display = 'block';
+                    document.getElementById('btnDado').disabled = false;
+                    mostrarEstadoJuego(datos.estado);
+                    break;
+                    
+                case 'RESULTADO_DADO':
+                    log(`🎲 Dado lanzado: ${datos.valor}`, 'success');
+                    valorDadoActual = datos.valor;
+                    mostrarResultadoDado(datos);
+                    break;
+                    
+                case 'ESTADO_JUEGO':
+                    if (datos.partidaActiva) {
+                        mostrarEstadoJuego(datos.estado);
+                    } else {
+                        log('⚠️ No hay partida activa', 'warning');
+                    }
+                    break;
+                    
+                case 'MOVIMIENTO_RESULTADO':
+                    if (datos.exito) {
+                        log('✅ Movimiento exitoso', 'success');
+                        mostrarEstadoJuego(datos.estadoJuego);
+                        document.getElementById('fichasDisponibles').style.display = 'none';
+                    } else {
+                        log('❌ Movimiento fallido', 'error');
+                    }
+                    break;
+                    
+                case 'ERROR':
+                    log('❌ Error: ' + datos.mensaje, 'error');
+                    break;
+            }
+        }
+
+        function iniciarPartida() {
             if (!ws || ws.readyState !== WebSocket.OPEN) {
-                log('❌ No hay conexión activa', 'error');
+                log('❌ No conectado', 'error');
                 return;
             }
 
             const mensaje = {
-                accion: accion,
-                timestamp: Date.now()
+                accion: 'INICIAR_PARTIDA'
             };
 
-            log(`📤 Enviando acción: ${accion}`, 'info');
+            log('🎮 Iniciando partida...', 'info');
             ws.send(JSON.stringify(mensaje));
         }
 
-        // Conectar automáticamente si hay puerto en el input
-        window.onload = function() {
-            const puerto = document.getElementById('portInput').value;
-            if (puerto) {
-                log(`💡 Puerto precargado: ${puerto}`, 'info');
-                log(`👉 Haz clic en "Conectar al Servidor" para iniciar`, 'info');
+        function lanzarDado() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('❌ No conectado', 'error');
+                return;
             }
-        };
+
+            const mensaje = {
+                accion: 'LANZAR_DADO'
+            };
+
+            log('🎲 Lanzando dado...', 'info');
+            ws.send(JSON.stringify(mensaje));
+        }
+
+        function obtenerEstado() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('❌ No conectado', 'error');
+                return;
+            }
+
+            const mensaje = {
+                accion: 'OBTENER_ESTADO'
+            };
+
+            log('📊 Obteniendo estado...', 'info');
+            ws.send(JSON.stringify(mensaje));
+        }
+
+        function mostrarResultadoDado(datos) {
+            document.getElementById('dadoResult').style.display = 'block';
+            document.getElementById('valorDado').textContent = datos.valor;
+            
+            const fichasList = document.getElementById('fichasList');
+            fichasList.innerHTML = '';
+            
+            if (datos.fichasDisponibles && datos.fichasDisponibles.length > 0) {
+                document.getElementById('fichasDisponibles').style.display = 'block';
+                
+                datos.fichasDisponibles.forEach(ficha => {
+                    const card = document.createElement('div');
+                    card.className = 'ficha-card';
+                    card.innerHTML = `
+                        <strong>Ficha ${ficha.idFicha}</strong><br>
+                        ${ficha.enCasa ? '🏠 En casa' : `📍 Pos: ${ficha.posicion}`}
+                    `;
+                    card.onclick = () => moverFicha(ficha.idFicha, datos.valor);
+                    fichasList.appendChild(card);
+                });
+            } else {
+                document.getElementById('fichasDisponibles').style.display = 'none';
+                log('⚠️ No hay fichas disponibles para mover', 'warning');
+            }
+        }
+
+        function moverFicha(fichaId, pasos) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('❌ No conectado', 'error');
+                return;
+            }
+
+            const mensaje = {
+                accion: 'MOVER_FICHA',
+                fichaId: fichaId,
+                pasos: pasos
+            };
+
+            log(`🎯 Moviendo ficha ${fichaId}...`, 'info');
+            ws.send(JSON.stringify(mensaje));
+        }
+
+        function mostrarEstadoJuego(estado) {
+            if (!estado) return;
+            
+            // Turno actual
+            if (estado.turnoActual) {
+                document.getElementById('turnoActual').textContent = 
+                    `${estado.turnoActual} (${estado.colorTurno})`;
+            }
+            
+            // Jugadores
+            if (estado.jugadores) {
+                const jugadoresList = document.getElementById('jugadoresList');
+                jugadoresList.innerHTML = '';
+                
+                estado.jugadores.forEach(jugador => {
+                    const div = document.createElement('div');
+                    div.style.marginTop = '10px';
+                    
+                    let fichasEnCasa = 0;
+                    let fichasEnJuego = 0;
+                    let fichasEnMeta = 0;
+                    
+                    jugador.fichas.forEach(f => {
+                        if (f.enCasa) fichasEnCasa++;
+                        else if (f.enMeta) fichasEnMeta++;
+                        else fichasEnJuego++;
+                    });
+                    
+                    div.innerHTML = `
+                        <strong>${jugador.nombre}</strong> (${jugador.color})<br>
+                        🏠 Casa: ${fichasEnCasa} | 
+                        🎲 Juego: ${fichasEnJuego} | 
+                        🏆 Meta: ${fichasEnMeta}
+                    `;
+                    jugadoresList.appendChild(div);
+                });
+            }
+        }
 
         // Permitir Enter para conectar
         document.getElementById('portInput').addEventListener('keypress', function(e) {

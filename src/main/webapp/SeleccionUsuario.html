@@ -10,22 +10,13 @@
 <div class="pagina-avatar">
   <h1 class="titulo-avatar">Selecciona tu avatar</h1>
 
-  <form action="guardarPerfil" method="post" enctype="multipart/form-data">
-
-    <!-- ============================ -->
-    <!--           FILA 1             -->
-    <!-- ============================ -->
+  <form id="formPerfil">
+    <!-- FILA 1 -->
     <div class="fila-avatares fila1">
-
       <!-- Avatar personalizado -->
       <div class="grupo-avatar-upload">
         <label class="btn-avatar" id="avatar-personalizado">
-          <input
-            type="file"
-            id="file-personaje0"
-            name="avatarFile"
-            accept="image/*"
-            hidden>
+          <input type="file" id="file-personaje0" name="avatarFile" accept="image/*" hidden>
           <img id="img-personaje0" src="assets/personaje0.png" class="img-avatar">
           <img src="assets/centropersonaje0.png" class="img-centro">
         </label>
@@ -51,14 +42,10 @@
       <button type="button" class="btn-avatar boton-extra" id="boton-extra">
         +4
       </button>
-
     </div>
 
-    <!-- ============================ -->
-    <!--         FILA EXTRA           -->
-    <!-- ============================ -->
+    <!-- FILA EXTRA -->
     <div class="fila-avatares fila2" style="display:none;">
-
       <button type="button" class="btn-avatar avatar-extra" data-value="extra1">
         <img src="assets/1.jpg" class="img-avatar">
       </button>
@@ -74,76 +61,159 @@
       <button type="button" class="btn-avatar avatar-extra" data-value="extra4">
         <img src="assets/4.jpg" class="img-avatar">
       </button>
-
     </div>
    
-    <!-- NOMBRE DE USUARIO  -->
+    <!-- NOMBRE DE USUARIO -->
     <h2 class="subtitulo-avatar">Escribe tu nombre de usuario</h2>
 
     <div class="bloque-usuario">
-  <input
-    class="username-input"
-    type="text"
-    name="username"
-    placeholder="Nombre de usuario"
-    required>
+      <input class="username-input" type="text" name="username" id="usernameInput" 
+             placeholder="Nombre de usuario" required maxlength="15">
 
-  <input type="hidden" id="avatar-selected" name="avatarSelected">
+      <input type="hidden" id="avatar-selected" name="avatarSelected">
 
-  <button class="save-btn" type="submit">Guardar</button>
+      <button class="save-btn" type="submit">Guardar</button>
+    </div>
+  </form>
 </div>
 
-
 <script>
+    const fileInput0 = document.getElementById('file-personaje0');
+    const imgPersonaje0 = document.getElementById('img-personaje0');
+    const labelAvatar = document.getElementById('avatar-personalizado');
+    const hiddenAvatar = document.getElementById('avatar-selected');
+    const avatarButtons = document.querySelectorAll('.btn-avatar[type="button"]');
+    const centroImagen0 = document.querySelector('#avatar-personalizado .img-centro');
+    const botonExtra = document.getElementById("boton-extra");
+    const formulario = document.getElementById('formPerfil');
+    const usernameInput = document.getElementById('usernameInput');
 
-  const fileInput0     = document.getElementById('file-personaje0');
-  const imgPersonaje0  = document.getElementById('img-personaje0');
-  const labelAvatar    = document.getElementById('avatar-personalizado');
-  const hiddenAvatar   = document.getElementById('avatar-selected');
-  const avatarButtons  = document.querySelectorAll('.btn-avatar[type="button"]');
-  const centroImagen0  = document.querySelector('#avatar-personalizado .img-centro');
-  const botonExtra     = document.getElementById("boton-extra");
+    let avatarSeleccionado = null;
+    let imagenPersonalizada = null;
 
-  // Selección de avatares normales
-  avatarButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      document.querySelectorAll('.btn-avatar')
-        .forEach(b => b.classList.remove('seleccionado'));
+    // Selección de avatares normales
+    avatarButtons.forEach(button => {
+        if (button.id !== 'boton-extra') {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.btn-avatar')
+                    .forEach(b => b.classList.remove('seleccionado'));
 
-      button.classList.add('seleccionado');
-      hiddenAvatar.value = button.dataset.value;
+                button.classList.add('seleccionado');
+                avatarSeleccionado = button.dataset.value;
+                hiddenAvatar.value = avatarSeleccionado;
+                imagenPersonalizada = null;
+
+                console.log('[AVATAR] Seleccionado:', avatarSeleccionado);
+            });
+        }
     });
-  });
 
-  // Avatar personalizado
-  labelAvatar.addEventListener('click', () => {
-    document.querySelectorAll('.btn-avatar')
-      .forEach(b => b.classList.remove('seleccionado'));
+    // Avatar personalizado
+    labelAvatar.addEventListener('click', (e) => {
+        if (e.target === fileInput0) return;
+        
+        document.querySelectorAll('.btn-avatar')
+            .forEach(b => b.classList.remove('seleccionado'));
 
-    labelAvatar.classList.add('seleccionado');
-    hiddenAvatar.value = 'custom';
-  });
+        labelAvatar.classList.add('seleccionado');
+        avatarSeleccionado = 'custom';
+        hiddenAvatar.value = 'custom';
+        
+        console.log('[AVATAR] Modo personalizado activado');
+    });
 
-  // Cargar imagen personalizada
-  fileInput0.addEventListener('change', event => {
-    const file = event.target.files[0];
-    if (!file) return;
+    // Cargar imagen personalizada
+    fileInput0.addEventListener('change', event => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      imgPersonaje0.src = reader.result;
-      if (centroImagen0) centroImagen0.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor selecciona una imagen válida');
+            return;
+        }
 
-    fileInput0.value = '';
-  });
+        if (file.size > 5 * 1024 * 1024) {
+            alert('La imagen es muy grande. Máximo 5MB');
+            return;
+        }
 
-  // Mostrar fila extra
-  botonExtra.addEventListener("click", () => {
-    document.querySelector(".fila2").style.display = "flex";
-  });
+        const reader = new FileReader();
+        reader.onload = () => {
+            imgPersonaje0.src = reader.result;
+            imagenPersonalizada = reader.result;
+            if (centroImagen0) centroImagen0.style.display = 'none';
+            
+            document.querySelectorAll('.btn-avatar')
+                .forEach(b => b.classList.remove('seleccionado'));
+            labelAvatar.classList.add('seleccionado');
+            avatarSeleccionado = 'custom';
+            
+            console.log('[AVATAR] Imagen personalizada cargada');
+        };
+        reader.readAsDataURL(file);
+    });
 
+    // Mostrar fila extra
+    botonExtra.addEventListener("click", () => {
+        const fila2 = document.querySelector(".fila2");
+        if (fila2.style.display === "none") {
+            fila2.style.display = "flex";
+            botonExtra.textContent = "-4";
+        } else {
+            fila2.style.display = "none";
+            botonExtra.textContent = "+4";
+        }
+    });
+
+    // Guardar perfil y continuar
+    formulario.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+
+        if (!username) {
+            alert('Por favor ingresa un nombre de usuario');
+            usernameInput.focus();
+            return;
+        }
+
+        if (username.length < 3) {
+            alert('El nombre debe tener al menos 3 caracteres');
+            usernameInput.focus();
+            return;
+        }
+
+        if (!avatarSeleccionado) {
+            alert('Por favor selecciona un avatar');
+            return;
+        }
+
+        const perfilUsuario = {
+            nombre: username,
+            avatar: avatarSeleccionado,
+            imagenAvatar: imagenPersonalizada,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem('perfilUsuario', JSON.stringify(perfilUsuario));
+        
+        console.log('[PERFIL] Guardado:', perfilUsuario);
+
+        const btnGuardar = formulario.querySelector('.save-btn');
+        btnGuardar.textContent = '✓ Guardado';
+        btnGuardar.style.background = '#4CAF50';
+
+        setTimeout(() => {
+            window.location.href = 'Principal.html';
+        }, 500);
+    });
+
+    // Validación en tiempo real del username
+    usernameInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
+    });
+
+    console.log('[SELECCIÓN] Página de selección de usuario cargada');
 </script>
 
 </body>

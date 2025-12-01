@@ -1,192 +1,463 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tablero de Juego</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-        <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-        <link rel="stylesheet" href="css/Tablero.css"/>
-
-    </head>
-    <body>
-        <div class="encabezado-juego">
-            <div class="seccion-tiempo">
-                <div class="etiqueta-tiempo">Tiempo Restante</div>
-                <div class="barra-tiempo">
-                    <div class="progreso-tiempo" id="barraProgreso"></div>
-                </div>
-            </div>
-            <button class="boton-config-juego" id="botonCoord">
-                <img src="assets/Confi.png" alt="alt"/>
-            </button>
-        </div>
-
-        <div class="contenedor-juego">
-            <!-- Contenedor Izquierda: Jugadores 1 y 3 -->
-            <div class="contenedor-izquierda">
-                <!-- Jugador 1: Alexa777 (Verde - Arriba Izquierda) -->
-                <div class="jugador-lateral" data-jugador="1">
-                    <div class="flecha-jugador">↓</div>
-                    <div class="avatar-lateral">
-                        <img src="assets/1.jpg" alt="Alexa777">
-                    </div>
-                    <div class="nombre-lateral">Alexa777</div>
-                    <div class="dados-jugador">
-                        <div  class="dado">
-                            <img class="dado" src="assets/D1.jpg" alt="alt"/>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Jugador 3: Papurrita05 (Rojo - Abajo Izquierda) -->
-                <div class="jugador-lateral" data-jugador="3">
-                    <div class="flecha-jugador">↓</div>
-                    <div class="avatar-lateral">
-                        <img src="assets/2.jpg" alt="Papurrita05">
-                    </div>
-                    <div class="nombre-lateral">Papurrita05</div>
-                    <div class="dados-jugador">
-                        <div class="dado">
-                            <img class="dado" src="assets/D1.jpg" alt="alt"/>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tablero Central -->
-            <div class="contenedor-tablero">
-                <div id="debug-container"></div>
-                <img src="assets/Foto tablero.png" alt="Tablero" class="imagen-tablero" id="imagenTablero">
-                <div class="capa-casillas" id="capaCasillas"></div>
-            </div>
-
-            <!-- Contenedor Derecha: Jugadores 2 y 4 -->
-            <div class="contenedor-derecha">
-                <!-- Jugador 2: Eliu (Amarillo - Arriba Derecha) -->
-                <div class="jugador-lateral" data-jugador="2">
-                    <div class="flecha-jugador">↓</div>
-                    <div class="avatar-lateral">
-                        <img src="assets/3.jpg" alt="Eliu">
-                    </div>
-                    <div class="nombre-lateral">Eliu</div>
-                    <div class="dados-jugador">
-                        <div class="dado">
-                            <img class="dado" src="assets/D1.jpg" alt="alt"/>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Jugador 4: Crisr22 (Azul - Abajo Derecha) -->
-                <div class="jugador-lateral" data-jugador="4">
-                    <div class="flecha-jugador">↓</div>
-                    <div class="avatar-lateral">
-                        <img src="assets/4.jpg" alt="Crisr22">
-                    </div>
-                    <div class="nombre-lateral">Crisr22</div>
-                    <div class="dados-jugador">
-                        <div class="dado">
-                            <img class="dado" src="assets/D1.jpg" alt="alt"/>
-                        </div>
-
-                    </div>
-                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Juego</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/Tablero.css"/>
+</head>
+<body>
+    <div class="encabezado-juego">
+        <div class="seccion-tiempo">
+            <div class="etiqueta-tiempo">Tiempo Restante</div>
+            <div class="barra-tiempo">
+                <div class="progreso-tiempo" id="barraProgreso"></div>
             </div>
         </div>
+        <button class="boton-config-juego" id="botonConfig">
+            <img src="assets/Confi.png" alt="Configuración"/>
+        </button>
+    </div>
 
-        <script>
-            // CONFIGURACIÓN DE JUGADORES (cambia este número según jugadores conectados)
-            const jugadoresConectados = 2; // Puede ser 2, 3 o 4
+    <div class="contenedor-juego">
+        <!-- Contenedor Izquierda -->
+        <div class="contenedor-izquierda" id="contenedorIzquierda"></div>
 
-            // COORDENADAS DE LAS BASES (ajusta estas coordenadas manualmente)
-            const coordenadasBases = {
-                verde: [
-                    {x: 13.7, y: 13.7},
-                    {x: 26.5, y: 13.7},
-                    {x: 13.7, y: 26.6},
-                    {x: 26.5, y: 26.6}
-                ],
-                amarillo: [
-                    {x: 73.7, y: 13.8},
-                    {x: 86.5, y: 13.8},
-                    {x: 73.7, y: 26.5},
-                    {x: 86.5, y: 26.6}
-                ],
-                rojo: [
-                    {x: 13.6, y: 86.4},
-                    {x: 13.6, y: 73.7},
-                    {x: 26.5, y: 86.4},
-                    {x: 26.5, y: 73.5}
-                ],
-                azul: [
-                    {x: 73.7, y: 73.8},
-                    {x: 86.5, y: 73.8},
-                    {x: 73.7, y: 86.4},
-                    {x: 86.5, y: 86.4}
-                ]
-            };
+        <!-- Tablero Central -->
+        <div class="contenedor-tablero">
+            <img src="assets/Foto tablero.png" alt="Tablero" class="imagen-tablero" id="imagenTablero">
+            <div class="capa-casillas" id="capaCasillas"></div>
+        </div>
 
-            // Crear fichas en las bases (solo para jugadores conectados)
-            function crearFichas() {
-                const capa = document.getElementById('capaCasillas');
-                const coloresActivos = obtenerColoresActivos();
+        <!-- Contenedor Derecha -->
+        <div class="contenedor-derecha" id="contenedorDerecha"></div>
+    </div>
 
-                coloresActivos.forEach(color => {
-                    coordenadasBases[color].forEach((pos, index) => {
-                        const ficha = document.createElement('div');
-                        ficha.className = `ficha ${color}`;
-                        ficha.dataset.color = color;
-                        ficha.dataset.numero = index + 1;
-                        ficha.style.left = pos.x + '%';
-                        ficha.style.top = pos.y + '%';
+    <script>
+        // ===================================
+        // CONFIGURACIÓN Y CONSTANTES
+        // ===================================
+        
+        const COLORES_JUGADORES = ['Amarillo', 'Azul'];
+        const COLORES_CSS = {
+            'Amarillo': 'amarillo',
+            'Azul': 'azul'
+        };
 
-                        // Agregar estrella dentro de la ficha
-                        const estrella = document.createElement('div');
-                        estrella.className = 'estrella-ficha';
-                        estrella.textContent = '★';
-                        ficha.appendChild(estrella);
+        const casillas = [
+            {id: 1, x: 56.2, y: 89.5}, {id: 2, x: 56.8, y: 82.9}, {id: 3, x: 56.8, y: 76.2},
+            {id: 4, x: 56.6, y: 69.7}, {id: 5, x: 56.6, y: 63.1}, {id: 6, x: 62.6, y: 57.0},
+            {id: 7, x: 69.7, y: 57.0}, {id: 8, x: 76.1, y: 56.2}, {id: 9, x: 82.4, y: 57.0},
+            {id: 10, x: 89.1, y: 56.4}, {id: 11, x: 95.7, y: 56.4}, {id: 12, x: 96.1, y: 50.4},
+            {id: 13, x: 96.1, y: 43.1}, {id: 14, x: 89.3, y: 43.3}, {id: 15, x: 82.6, y: 43.7},
+            {id: 16, x: 75.9, y: 43.5}, {id: 17, x: 69.3, y: 43.5}, {id: 18, x: 63.2, y: 43.3},
+            {id: 19, x: 56.4, y: 37.0}, {id: 20, x: 56.1, y: 30.0}, {id: 21, x: 56.6, y: 23.7},
+            {id: 22, x: 56.8, y: 17.4}, {id: 23, x: 56.6, y: 10.4}, {id: 24, x: 56.4, y: 4.1},
+            {id: 25, x: 49.1, y: 3.7}, {id: 26, x: 43.2, y: 4.3}, {id: 27, x: 42.8, y: 10.0},
+            {id: 28, x: 43.0, y: 17.0}, {id: 29, x: 42.8, y: 23.3}, {id: 30, x: 43.0, y: 29.9},
+            {id: 31, x: 43.7, y: 37.0}, {id: 32, x: 36.4, y: 42.5}, {id: 33, x: 30.1, y: 43.1},
+            {id: 34, x: 24.5, y: 43.1}, {id: 35, x: 16.4, y: 42.7}, {id: 36, x: 10.7, y: 43.3},
+            {id: 37, x: 3.4, y: 43.1}, {id: 38, x: 3.9, y: 49.3}, {id: 39, x: 4.3, y: 56.4},
+            {id: 40, x: 10.1, y: 56.8}, {id: 41, x: 17.0, y: 57.0}, {id: 42, x: 23.4, y: 56.4},
+            {id: 43, x: 29.9, y: 56.6}, {id: 44, x: 36.6, y: 56.8}, {id: 45, x: 43.2, y: 63.1},
+            {id: 46, x: 43.0, y: 69.7}, {id: 47, x: 42.8, y: 76.4}, {id: 48, x: 43.4, y: 82.9},
+            {id: 49, x: 43.4, y: 89.3}, {id: 50, x: 43.6, y: 95.8}, {id: 51, x: 50.1, y: 95.6}
+        ];
 
-                        capa.appendChild(ficha);
-                    });
-                });
+        const coordenadasBases = {
+            amarillo: [
+                {x: 73.7, y: 13.8}, {x: 86.5, y: 13.8},
+                {x: 73.7, y: 26.5}, {x: 86.5, y: 26.6}
+            ],
+            azul: [
+                {x: 73.7, y: 73.8}, {x: 86.5, y: 73.8},
+                {x: 73.7, y: 86.4}, {x: 86.5, y: 86.4}
+            ]
+        };
+
+        // ===================================
+        // VARIABLES GLOBALES
+        // ===================================
+        
+        let webSocket = null;
+        let jugadores = [];
+        let miJugadorId = null;
+        let turnoActual = 1;
+        let estadoJuego = null;
+        let ultimoDado = null;
+        let fichasDisponiblesActual = [];
+        let tiempoRestante = 100;
+        let intervalTiempo = null;
+        let fichasEnJuego = {};
+
+        // ===================================
+        // INICIALIZACIÓN
+        // ===================================
+        
+        function inicializarJuego() {
+            console.log('[TABLERO] Inicializando juego...');
+            
+            const jugadoresGuardados = JSON.parse(localStorage.getItem('jugadoresPartida') || '[]');
+            const perfilActual = JSON.parse(localStorage.getItem('perfilUsuario'));
+            
+            if (!jugadoresGuardados.length || !perfilActual) {
+                alert('Error: No hay datos de partida');
+                window.location.href = 'Principal.html';
+                return;
             }
 
-            // Obtener colores activos según jugadores conectados
-            function obtenerColoresActivos() {
-                const ordenColores = ['verde', 'amarillo', 'rojo', 'azul'];
-                return ordenColores.slice(0, jugadoresConectados);
+            // Asignar colores a jugadores
+            jugadoresGuardados.forEach((j, index) => {
+                j.jugadorId = index + 1;
+                j.color = COLORES_JUGADORES[index];
+                
+                if (j.nombre === perfilActual.nombre) {
+                    miJugadorId = j.jugadorId;
+                }
+            });
+
+            jugadores = jugadoresGuardados;
+
+            console.log('[TABLERO] Jugadores:', jugadores);
+            console.log('[TABLERO] Mi ID:', miJugadorId);
+
+            // Renderizar interfaz
+            renderizarJugadores();
+            crearFichas();
+            
+            // Conectar WebSocket
+            conectarWebSocket();
+
+            // Iniciar temporizador
+            iniciarTemporizador();
+        }
+
+        // ===================================
+        // WEBSOCKET
+        // ===================================
+        
+       function conectarWebSocket() {
+        // Intentar usar el puerto guardado de SalaEspera, o probar comunes
+        const puertoGuardado = localStorage.getItem('puertoWebSocket');
+        const puertosAPrueba = puertoGuardado ? 
+            [parseInt(puertoGuardado), 8080, 8081, 8082, 9000, 3000] : 
+            [8080, 8081, 8082, 9000, 3000];
+
+        let indexPuerto = 0;
+
+        function intentarConexion() {
+            if (indexPuerto >= puertosAPrueba.length) {
+                alert('No se pudo conectar al servidor. Verifica que ParchisWeb.java esté ejecutándose.');
+                console.error('[WS] No se pudo conectar a ningún puerto');
+                return;
             }
 
-            // Mostrar/ocultar jugadores según conexión
-            function configurarJugadores() {
-                const todosJugadores = document.querySelectorAll('.jugador-lateral');
+            const puerto = puertosAPrueba[indexPuerto];
+            console.log(`[WS] Intentando conectar al puerto ${puerto}...`);
 
-                // Ocultar todos primero
-                todosJugadores.forEach(j => j.style.display = 'none');
+            try {
+                webSocket = new WebSocket(`ws://localhost:${puerto}`);
 
-                // Mostrar solo los activos según el número de jugadores
-                for (let i = 1; i <= jugadoresConectados; i++) {
-                    const jugador = document.querySelector(`[data-jugador="${i}"]`);
-                    if (jugador) {
-                        jugador.style.display = 'flex';
+                webSocket.onopen = () => {
+                    console.log(`[WS] ✓ Conectado exitosamente al puerto ${puerto}`);
+
+                    webSocket.send(JSON.stringify({
+                        accion: 'INICIAR_PARTIDA',
+                        jugadores: jugadores
+                    }));
+                };
+
+                webSocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    manejarMensajeJuego(data);
+                };
+
+                webSocket.onerror = (error) => {
+                    console.log(`[WS] Puerto ${puerto} falló, probando siguiente...`);
+                    indexPuerto++;
+                    setTimeout(intentarConexion, 500);
+                };
+
+                webSocket.onclose = () => {
+                    console.log('[WS] Desconectado');
+                };
+
+            } catch (error) {
+                console.error(`[WS] Error en puerto ${puerto}:`, error);
+                indexPuerto++;
+                setTimeout(intentarConexion, 500);
+            }
+        }
+
+        intentarConexion();
+    }
+
+        // ===================================
+        // MANEJO DE MENSAJES
+        // ===================================
+        
+        function manejarMensajeJuego(data) {
+            console.log('[WS] Mensaje:', data);
+
+            switch (data.tipo) {
+                case 'PARTIDA_INICIADA':
+                    estadoJuego = data.estado;
+                    console.log('[JUEGO] Partida iniciada');
+                    break;
+
+                case 'RESULTADO_DADO':
+                    ultimoDado = data.valor;
+                    mostrarResultadoDado(data.valor);
+                    fichasDisponiblesActual = data.fichasDisponibles || [];
+                    
+                    if (data.turnoActual === miJugadorId) {
+                        if (fichasDisponiblesActual.length > 0) {
+                            mostrarSeleccionFicha(fichasDisponiblesActual);
+                        } else {
+                            alert('No tienes fichas disponibles. Turno perdido.');
+                            setTimeout(() => enviarCambioTurno(), 2000);
+                        }
                     }
+                    break;
+
+                case 'MOVIMIENTO_RESULTADO':
+                    if (data.exito) {
+                        actualizarTablero(data.estadoJuego);
+                        verificarFinJuego();
+                    }
+                    break;
+
+                case 'ESTADO_JUEGO':
+                    estadoJuego = data.estado;
+                    actualizarTablero(data.estado);
+                    break;
+
+                case 'CAMBIO_TURNO':
+                    turnoActual = data.jugadorId;
+                    actualizarIndicadorTurno();
+                    break;
+
+                case 'FIN_JUEGO':
+                    mostrarGanador(data.ganador);
+                    break;
+            }
+        }
+
+        // ===================================
+        // RENDERIZADO
+        // ===================================
+        
+        function renderizarJugadores() {
+            const izquierda = document.getElementById('contenedorIzquierda');
+            const derecha = document.getElementById('contenedorDerecha');
+            
+            izquierda.innerHTML = '';
+            derecha.innerHTML = '';
+
+            jugadores.forEach((jugador, index) => {
+                const html = `
+                    <div class="jugador-lateral" data-jugador="${jugador.jugadorId}" id="jugador${jugador.jugadorId}">
+                        <div class="flecha-jugador">↓</div>
+                        <div class="avatar-lateral">
+                            <img src="${jugador.avatar}" alt="${jugador.nombre}">
+                        </div>
+                        <div class="nombre-lateral">${jugador.nombre}</div>
+                        <div class="dados-jugador">
+                            <div class="dado">
+                                <img class="dado" src="assets/D1.jpg" alt="dado" id="dado${jugador.jugadorId}"/>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (index === 0) {
+                    derecha.innerHTML += html;
+                } else {
+                    izquierda.innerHTML += html;
+                }
+            });
+
+            actualizarIndicadorTurno();
+        }
+
+        function crearFichas() {
+            const capa = document.getElementById('capaCasillas');
+            
+            jugadores.forEach(jugador => {
+                const colorCSS = COLORES_CSS[jugador.color];
+                const coordenadas = coordenadasBases[colorCSS];
+
+                for (let i = 0; i < 4; i++) {
+                    const ficha = document.createElement('div');
+                    ficha.className = `ficha ${colorCSS}`;
+                    ficha.dataset.jugador = jugador.jugadorId;
+                    ficha.dataset.numero = i + 1;
+                    ficha.dataset.fichaId = `${jugador.jugadorId}_${i + 1}`;
+                    ficha.style.left = coordenadas[i].x + '%';
+                    ficha.style.top = coordenadas[i].y + '%';
+
+                    const estrella = document.createElement('div');
+                    estrella.className = 'estrella-ficha';
+                    estrella.textContent = '★';
+                    ficha.appendChild(estrella);
+
+                    capa.appendChild(ficha);
+
+                    fichasEnJuego[`${jugador.jugadorId}_${i + 1}`] = {
+                        enCasa: true,
+                        posicion: -1,
+                        enMeta: false
+                    };
+                }
+            });
+        }
+
+        // ===================================
+        // LÓGICA DEL JUEGO
+        // ===================================
+        
+        function lanzarDado() {
+            if (turnoActual !== miJugadorId) {
+                alert('No es tu turno');
+                return;
+            }
+
+            console.log('[JUEGO] Lanzando dado...');
+
+            webSocket.send(JSON.stringify({
+                accion: 'LANZAR_DADO'
+            }));
+        }
+
+        function mostrarResultadoDado(valor) {
+            const dadoImg = document.getElementById(`dado${turnoActual}`);
+            if (dadoImg) {
+                dadoImg.src = `assets/D${valor}.jpg`;
+            }
+
+            console.log('[DADO] Resultado:', valor);
+        }
+
+        function mostrarSeleccionFicha(fichasDisponibles) {
+            if (fichasDisponibles.length === 0) return;
+
+            const mensaje = fichasDisponibles.map((f, index) => 
+                `${index + 1}. Ficha ${f.idFicha} (${f.enCasa ? 'En casa' : 'Posición ' + f.posicion})`
+            ).join('\n');
+
+            const seleccion = prompt(`Selecciona una ficha para mover:\n${mensaje}\n\nIngresa el número:`);
+            
+            if (seleccion) {
+                const index = parseInt(seleccion) - 1;
+                if (index >= 0 && index < fichasDisponibles.length) {
+                    const ficha = fichasDisponibles[index];
+                    moverFicha(ficha.idFicha, ultimoDado);
                 }
             }
+        }
 
+        function moverFicha(fichaId, pasos) {
+            console.log('[JUEGO] Moviendo ficha:', fichaId, 'pasos:', pasos);
 
-            // Temporizador
-            let tiempoRestante = 100;
-            function actualizarTiempo() {
+            webSocket.send(JSON.stringify({
+                accion: 'MOVER_FICHA',
+                fichaId: fichaId,
+                pasos: pasos
+            }));
+        }
+
+        function actualizarTablero(estado) {
+            if (!estado || !estado.jugadores) return;
+
+            estado.jugadores.forEach(jugador => {
+                jugador.fichas.forEach(ficha => {
+                    const fichaElement = document.querySelector(`[data-ficha-id="${jugador.jugadorId}_${ficha.id}"]`);
+                    
+                    if (fichaElement) {
+                        if (ficha.enMeta) {
+                            fichaElement.style.display = 'none';
+                        } else if (ficha.enCasa) {
+                            const colorCSS = COLORES_CSS[jugador.color];
+                            const coords = coordenadasBases[colorCSS][ficha.id - 1];
+                            fichaElement.style.left = coords.x + '%';
+                            fichaElement.style.top = coords.y + '%';
+                        } else {
+                            const casilla = casillas.find(c => c.id === ficha.posicion);
+                            if (casilla) {
+                                fichaElement.style.left = casilla.x + '%';
+                                fichaElement.style.top = casilla.y + '%';
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function actualizarIndicadorTurno() {
+            document.querySelectorAll('.flecha-jugador').forEach(flecha => {
+                flecha.style.display = 'none';
+            });
+
+            const flechaActual = document.querySelector(`#jugador${turnoActual} .flecha-jugador`);
+            if (flechaActual) {
+                flechaActual.style.display = 'block';
+            }
+
+            if (turnoActual === miJugadorId) {
+                setTimeout(() => {
+                    const confirmar = confirm('Es tu turno. ¿Lanzar el dado?');
+                    if (confirmar) {
+                        lanzarDado();
+                    }
+                }, 500);
+            }
+        }
+
+        function enviarCambioTurno() {
+            const siguienteJugador = turnoActual === 1 ? 2 : 1;
+            
+            webSocket.send(JSON.stringify({
+                accion: 'CAMBIO_TURNO',
+                jugadorId: siguienteJugador
+            }));
+        }
+
+        function verificarFinJuego() {
+            // Lógica para verificar si algún jugador ganó
+            if (estadoJuego && estadoJuego.jugadores) {
+                estadoJuego.jugadores.forEach(jugador => {
+                    const fichasEnMeta = jugador.fichas.filter(f => f.enMeta).length;
+                    if (fichasEnMeta === 4) {
+                        mostrarGanador(jugador.nombre);
+                    }
+                });
+            }
+        }
+
+        function mostrarGanador(nombreGanador) {
+            alert(`¡${nombreGanador} HA GANADO LA PARTIDA!`);
+            
+            setTimeout(() => {
+                const volver = confirm('¿Deseas volver al menú principal?');
+                if (volver) {
+                    window.location.href = 'Principal.html';
+                }
+            }, 2000);
+        }
+
+        // ===================================
+        // TEMPORIZADOR
+        // ===================================
+        
+        function iniciarTemporizador() {
+            intervalTiempo = setInterval(() => {
+                tiempoRestante -= 2;
+                if (tiempoRestante < 0) tiempoRestante = 100;
+                
                 const barra = document.getElementById('barraProgreso');
-                tiempoRestante -= 2.0;
-                if (tiempoRestante < 0)
-                    tiempoRestante = 100;
                 barra.style.width = tiempoRestante + '%';
 
                 if (tiempoRestante < 30) {
@@ -196,90 +467,28 @@
                 } else {
                     barra.style.background = 'linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%)';
                 }
+            }, 1000);
+        }
+
+        // ===================================
+        // EVENTOS
+        // ===================================
+        
+        document.getElementById('botonConfig').addEventListener('click', () => {
+            const confirmar = confirm('¿Deseas salir del juego?');
+            if (confirmar) {
+                if (webSocket) webSocket.close();
+                window.location.href = 'Principal.html';
             }
+        });
 
-            const casillas = [
-                {id: 1, x: 56.2, y: 89.5},
-                {id: 2, x: 56.8, y: 82.9},
-                {id: 3, x: 56.8, y: 76.2},
-                {id: 4, x: 56.6, y: 69.7},
-                {id: 5, x: 56.6, y: 63.1},
-                {id: 6, x: 62.6, y: 57.0},
-                {id: 7, x: 69.7, y: 57.0},
-                {id: 8, x: 76.1, y: 56.2},
-                {id: 9, x: 82.4, y: 57.0},
-                {id: 10, x: 89.1, y: 56.4},
-                {id: 11, x: 95.7, y: 56.4},
-                {id: 12, x: 96.1, y: 50.4},
-                {id: 13, x: 96.1, y: 43.1},
-                {id: 14, x: 89.3, y: 43.3},
-                {id: 15, x: 82.6, y: 43.7},
-                {id: 16, x: 75.9, y: 43.5},
-                {id: 17, x: 69.3, y: 43.5},
-                {id: 18, x: 63.2, y: 43.3},
-                {id: 19, x: 56.4, y: 37.0},
-                {id: 20, x: 56.1, y: 30.0},
-                {id: 21, x: 56.6, y: 23.7},
-                {id: 22, x: 56.8, y: 17.4},
-                {id: 23, x: 56.6, y: 10.4},
-                {id: 24, x: 56.4, y: 4.1},
-                {id: 25, x: 49.1, y: 3.7},
-                {id: 26, x: 43.2, y: 4.3},
-                {id: 27, x: 42.8, y: 10.0},
-                {id: 28, x: 43.0, y: 17.0},
-                {id: 29, x: 42.8, y: 23.3},
-                {id: 30, x: 43.0, y: 29.9},
-                {id: 31, x: 43.7, y: 37.0},
-                {id: 32, x: 36.4, y: 42.5},
-                {id: 33, x: 30.1, y: 43.1},
-                {id: 34, x: 24.5, y: 43.1},
-                {id: 35, x: 16.4, y: 42.7},
-                {id: 36, x: 10.7, y: 43.3},
-                {id: 37, x: 3.4, y: 43.1},
-                {id: 38, x: 3.9, y: 49.3},
-                {id: 39, x: 4.3, y: 56.4},
-                {id: 40, x: 10.1, y: 56.8},
-                {id: 41, x: 17.0, y: 57.0},
-                {id: 42, x: 23.4, y: 56.4},
-                {id: 43, x: 29.9, y: 56.6},
-                {id: 44, x: 36.6, y: 56.8},
-                {id: 45, x: 43.2, y: 63.1},
-                {id: 46, x: 43.0, y: 69.7},
-                {id: 47, x: 42.8, y: 76.4},
-                {id: 48, x: 43.4, y: 82.9},
-                {id: 49, x: 43.4, y: 89.3},
-                {id: 50, x: 43.6, y: 95.8},
-                {id: 51, x: 50.1, y: 95.6}
-            ];
+        // ===================================
+        // INICIAR
+        // ===================================
+        
+        window.addEventListener('load', inicializarJuego);
 
-
-
-            function mostrarCoordenadasDebug() {
-                const debug = document.getElementById("debug-container");
-                debug.innerHTML = ""; // limpia
-
-                casillas.forEach(c => {
-                    const dot = document.createElement("div");
-                    dot.classList.add("debug-dot");
-                    dot.style.left = c.x + "%";
-                    dot.style.top = c.y + "%";
-                    dot.title = `Casilla ${c.id}`;
-                    dot.textContent = c.id;
-                    debug.appendChild(dot);
-                });
-            }
-
-            mostrarCoordenadasDebug();
-
-
-
-            // Inicializar
-            configurarJugadores();
-            crearFichas();
-            setInterval(actualizarTiempo, 1000);
-
-            // Evento del botón
-            document.getElementById('botonCoord').addEventListener('click', toggleModoCoordernadas);
-        </script>
-    </body>
+        console.log('[TABLERO] Script cargado');
+    </script>
+</body>
 </html>

@@ -17,7 +17,6 @@
                 <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
             </div>
             <span class="cantidad-monedas">5,000</span>
-            
         </div>
         <div class="boton-config">
             <span class="icono-config">⚙️</span>
@@ -28,22 +27,8 @@
         <h1 class="titulo">EN SALA</h1>
 
         <div class="area-jugadores">
-            <div class="rejilla-jugadores">
-                <div class="espacio-jugador">
-                    <div class="avatar-jugador">
-                        <img src=assets/fondo2.jpeg alt="Alexa777">
-                    </div>
-                    <div class="nombre-jugador">Alexa777</div>
-                </div>
-                <div class="espacio-jugador">
-                    <div class="avatar-jugador"></div>
-                </div>
-                <div class="espacio-jugador">
-                    <div class="avatar-jugador"></div>
-                </div>
-                <div class="espacio-jugador">
-                    <div class="avatar-jugador"></div>
-                </div>
+            <div class="rejilla-jugadores" id="rejillaJugadores">
+                <!-- Los jugadores se cargarán dinámicamente -->
             </div>
         </div>
 
@@ -53,20 +38,263 @@
                 <div class="moneda-icono">
                     <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="alt"/>
                 </div>
-                <input type="number" class="input-cuota" value="500" min="0" step="50">
+                <input type="number" class="input-cuota" id="inputCuota" 
+                       value="500" min="0" step="50">
             </div>
         </div>
 
         <div class="seccion-codigo">
             <div class="etiqueta-codigo">Código de la sala:</div>
-            <div class="codigo-sala">2122724</div>
+            <div class="codigo-sala" id="codigoSala">0000000</div>
         </div>
 
         <div class="acciones">
-            <button class="btn btn-iniciar">Iniciar Partida</button>
-            <button class="btn btn-cancelar">Cancelar</button>
+            <button class="btn btn-iniciar" id="btnIniciar">Iniciar Partida</button>
+            <button class="btn btn-cancelar" id="btnCancelar">Cancelar</button>
         </div>
     </div>
 
+    <script>
+        const rejillaJugadores = document.getElementById('rejillaJugadores');
+        const codigoSala = document.getElementById('codigoSala');
+        const inputCuota = document.getElementById('inputCuota');
+        const btnIniciar = document.getElementById('btnIniciar');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        let jugadoresConectados = [];
+        let esAnfitrion = false;
+        let webSocket = null;
+
+        // Inicializar sala
+        function inicializarSala() {
+            const perfil = JSON.parse(localStorage.getItem('perfilUsuario'));
+            const codigo = localStorage.getItem('codigoSala');
+            esAnfitrion = localStorage.getItem('esAnfitrion') === 'true';
+
+            if (!perfil || !codigo) {
+                alert('Error: Datos de sala inválidos');
+                window.location.href = 'Principal.html';
+                return;
+            }
+
+            codigoSala.textContent = codigo;
+
+            // Determinar ruta del avatar
+            let rutaAvatar;
+            if (perfil.avatar === 'custom' && perfil.imagenAvatar) {
+                rutaAvatar = perfil.imagenAvatar;
+            } else {
+                rutaAvatar = `assets/${perfil.avatar}.png`;
+            }
+
+            const jugadorActual = {
+                nombre: perfil.nombre,
+                avatar: rutaAvatar,
+                esYo: true
+            };
+
+            jugadoresConectados.push(jugadorActual);
+
+            if (esAnfitrion) {
+                console.log('[SALA] Soy anfitrión de la sala:', codigo);
+                inputCuota.disabled = false;
+                btnIniciar.style.display = 'block';
+            } else {
+                console.log('[SALA] Me uní a la sala:', codigo);
+                inputCuota.disabled = true;
+                btnIniciar.style.display = 'none';
+            }
+
+            conectarWebSocket();
+            renderizarJugadores();
+        }
+
+        // Conectar al servidor WebSocket
+        function conectarWebSocket() {
+        // Lista de puertos comunes a probar
+        const puertosAPrueba = [8080, 8081, 8082, 9000, 3000];
+        let indexPuerto = 0;
+
+        function intentarConexion() {
+            if (indexPuerto >= puertosAPrueba.length) {
+                alert('No se pudo conectar al servidor en ningún puerto. Asegúrate de ejecutar ParchisWeb.java');
+                console.error('[WS] Agotados todos los puertos');
+                return;
+            }
+
+            const puerto = puertosAPrueba[indexPuerto];
+            console.log(`[WS] Intentando conectar al puerto ${puerto}...`);
+
+            try {
+                webSocket = new WebSocket(`ws://localhost:${puerto}`);
+
+                webSocket.onopen = () => {
+                    console.log(`[WS] ✓ Conectado exitosamente al puerto ${puerto}`);
+
+                    const perfil = JSON.parse(localStorage.getItem('perfilUsuario'));
+                    const codigo = localStorage.getItem('codigoSala');
+
+                    webSocket.send(JSON.stringify({
+                        accion: 'UNIRSE_SALA',
+                        codigoSala: codigo,
+                        jugador: {
+                            nombre: perfil.nombre,
+                            avatar: perfil.avatar
+                        }
+                    }));
+
+                    // Guardar puerto exitoso para Tablero.html
+                    localStorage.setItem('puertoWebSocket', puerto);
+                };
+
+                webSocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    manejarMensaje(data);
+                };
+
+                webSocket.onerror = (error) => {
+                    console.log(`[WS] Puerto ${puerto} falló, probando siguiente...`);
+                    indexPuerto++;
+                    setTimeout(intentarConexion, 500);
+                };
+
+                webSocket.onclose = () => {
+                    console.log('[WS] Desconectado del servidor');
+                };
+
+            } catch (error) {
+                console.error(`[WS] Error en puerto ${puerto}:`, error);
+                indexPuerto++;
+                setTimeout(intentarConexion, 500);
+            }
+        }
+
+        intentarConexion();
+    }
+
+        // Manejar mensajes del servidor
+        function manejarMensaje(data) {
+            console.log('[WS] Mensaje recibido:', data);
+
+            switch (data.tipo) {
+                case 'JUGADOR_UNIDO':
+                    agregarJugador(data.jugador);
+                    break;
+
+                case 'JUGADOR_SALIO':
+                    removerJugador(data.jugador);
+                    break;
+
+                case 'INICIAR_PARTIDA':
+                    iniciarPartida(data);
+                    break;
+
+                case 'ACTUALIZAR_CUOTA':
+                    inputCuota.value = data.cuota;
+                    break;
+            }
+        }
+
+        // Renderizar jugadores en la rejilla
+        function renderizarJugadores() {
+            rejillaJugadores.innerHTML = '';
+
+            for (let i = 0; i < 4; i++) {
+                const jugador = jugadoresConectados[i];
+                const div = document.createElement('div');
+                div.className = 'espacio-jugador';
+
+                if (jugador) {
+                    div.innerHTML = `
+                        <div class="avatar-jugador">
+                            <img src="${jugador.avatar}" alt="${jugador.nombre}">
+                        </div>
+                        <div class="nombre-jugador">${jugador.nombre}</div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="avatar-jugador"></div>
+                    `;
+                }
+
+                rejillaJugadores.appendChild(div);
+            }
+
+            if (esAnfitrion) {
+                btnIniciar.disabled = jugadoresConectados.length < 2;
+            }
+        }
+
+        // Agregar nuevo jugador
+        function agregarJugador(jugador) {
+            if (jugadoresConectados.length < 4) {
+                jugadoresConectados.push(jugador);
+                renderizarJugadores();
+                console.log('[SALA] Jugador unido:', jugador.nombre);
+            }
+        }
+
+        // Remover jugador
+        function removerJugador(jugador) {
+            jugadoresConectados = jugadoresConectados.filter(j => j.nombre !== jugador.nombre);
+            renderizarJugadores();
+            console.log('[SALA] Jugador salió:', jugador.nombre);
+        }
+
+        // Iniciar partida
+        btnIniciar.addEventListener('click', () => {
+            if (jugadoresConectados.length < 2) {
+                alert('Se necesitan al menos 2 jugadores para iniciar');
+                return;
+            }
+
+            console.log('[SALA] Iniciando partida...');
+
+            if (webSocket && webSocket.readyState === WebSocket.OPEN) {
+                webSocket.send(JSON.stringify({
+                    accion: 'INICIAR_PARTIDA',
+                    cuota: parseInt(inputCuota.value)
+                }));
+            }
+
+            localStorage.setItem('jugadoresPartida', JSON.stringify(jugadoresConectados));
+            
+            window.location.href = 'ComenzandoPartida.html';
+        });
+
+        // Cancelar y volver
+        btnCancelar.addEventListener('click', () => {
+            if (webSocket) {
+                webSocket.close();
+            }
+            
+            localStorage.removeItem('codigoSala');
+            localStorage.removeItem('esAnfitrion');
+            
+            window.location.href = 'Principal.html';
+        });
+
+        // Actualizar cuota (solo anfitrión)
+        inputCuota.addEventListener('change', () => {
+            if (esAnfitrion && webSocket && webSocket.readyState === WebSocket.OPEN) {
+                webSocket.send(JSON.stringify({
+                    accion: 'ACTUALIZAR_CUOTA',
+                    cuota: parseInt(inputCuota.value)
+                }));
+            }
+        });
+
+        // Inicializar cuando cargue la página
+        window.addEventListener('load', inicializarSala);
+
+        // Cerrar WebSocket al salir
+        window.addEventListener('beforeunload', () => {
+            if (webSocket) {
+                webSocket.close();
+            }
+        });
+
+        console.log('[SALA] Sala de espera cargada');
+    </script>
 </body>
 </html>

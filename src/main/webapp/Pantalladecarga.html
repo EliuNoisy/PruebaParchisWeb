@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <title>Parchís Star</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <title>Parchís Star</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!-- Fuente Kufam desde Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Kufam:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Fuente Kufam desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:wght@700;900&display=swap" rel="stylesheet">
 
-        
-        <link rel="stylesheet" href="css/Pantalladecarga.css">
-    </head>
-    <body>
-        <div class="container">
-            <h1 class="titulo">Parchís<br>Star</h1>
+    <link rel="stylesheet" href="css/Pantalladecarga.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="titulo">Parchís<br>Star</h1>
 
+        <img src="assets/cargando.png" class="icono-cargando" alt="">
+       
+        <p class="subtitulo">By<br>Equipo 2</p>
+    </div>
+
+    <script>
+        // Animación de carga y redirección automática
+        window.addEventListener('load', () => {
+            console.log('[CARGA] Pantalla de carga iniciada');
             
-           <img src="assets/cargando.png" class="icono-cargando" alt="">
-           
-            <p class="subtitulo">By<br>Equipo 2</p>
-        </div>
-    </body>
+            // Después de 3 segundos, redirigir a Registro
+            setTimeout(() => {
+                console.log('[CARGA] Redirigiendo a Registro...');
+                window.location.href = 'Registro.html';
+            }, 3000);
+        });
+
+        // Prevenir navegación hacia atrás
+        window.history.pushState(null, '', window.location.href);
+        window.addEventListener('popstate', () => {
+            window.history.pushState(null, '', window.location.href);
+        });
+    </script>
+</body>
 </html>

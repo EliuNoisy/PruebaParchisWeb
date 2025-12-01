@@ -1,49 +1,152 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Start Page</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
-
-
-    </head>
-    <body>
-        <header>
-            <div class="contenedor-izquierdo">
-                <div class="tarjeta">
-                    <div class="user">
-                        <img class="img-usuario" src=assets/fondo2.jpeg alt="">
-                        <span class="nombre-usuario">Alexa777</span>
-                    </div>
-                </div>
-
-                <div class="contador-monedas">
-                    <div class="moneda-icono">
-                        <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
-                    </div>
-                    <span class="cantidad-monedas">5,000</span>
-                    
+<head>
+    <title>Parchís Star - Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kufam:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/stylePantallaPrinciapal.css"/>
+</head>
+<body>
+    <header>
+        <div class="contenedor-izquierdo">
+            <div class="tarjeta">
+                <div class="user">
+                    <img class="img-usuario" id="avatarUsuario" src="assets/fondo2.jpeg" alt="">
+                    <span class="nombre-usuario" id="nombreUsuario">Usuario</span>
                 </div>
             </div>
 
-            <div class="boton-config">
-                <span class="icono-config">⚙️</span>
+            <div class="contador-monedas">
+                <div class="moneda-icono">
+                    <img src="assets/moneda-oro-dinero-icono-dolar 9.png" alt="Moneda">
+                </div>
+                <span class="cantidad-monedas" id="cantidadMonedas">5,000</span>
             </div>
-        </header>
-
-        <div class="contenido-central">
-            <h1 class="titulo">¿Tienes código de sala?</h1>
-
-            <div class="contenedor-codigo">
-                <input type="text" class="input-codigo" placeholder="1234567" value="1234567">
-                <button class="boton-unirse">Unirse</button>
-            </div>
-
-            <p class="mensaje-error">Error: Codigo invalido</p>
-
-            <button class="boton-crear">Crear Sala</button>
         </div>
+
+        <div class="boton-config" id="btnConfiguracion">
+            <span class="icono-config">⚙️</span>
+        </div>
+    </header>
+
+    <div class="contenido-central">
+        <h1 class="titulo">¿Tienes código de sala?</h1>
+
+        <div class="contenedor-codigo">
+            <input type="text" class="input-codigo" id="inputCodigo" 
+                   placeholder="1234567" maxlength="7">
+            <button class="boton-unirse" id="btnUnirse">Unirse</button>
+        </div>
+
+        <p class="mensaje-error" id="mensajeError" style="display: none;">
+            Error: Código inválido
+        </p>
+
+        <button class="boton-crear" id="btnCrearSala">Crear Sala</button>
+    </div>
+
+    <script>
+        const avatarUsuario = document.getElementById('avatarUsuario');
+        const nombreUsuario = document.getElementById('nombreUsuario');
+        const inputCodigo = document.getElementById('inputCodigo');
+        const btnUnirse = document.getElementById('btnUnirse');
+        const btnCrearSala = document.getElementById('btnCrearSala');
+        const mensajeError = document.getElementById('mensajeError');
+        const btnConfiguracion = document.getElementById('btnConfiguracion');
+
+        // Cargar perfil del usuario
+        function cargarPerfilUsuario() {
+            const perfil = localStorage.getItem('perfilUsuario');
+            
+            if (!perfil) {
+                console.log('[PRINCIPAL] No hay perfil, redirigiendo...');
+                window.location.href = 'SeleccionUsuario.html';
+                return;
+            }
+
+            const datos = JSON.parse(perfil);
+            nombreUsuario.textContent = datos.nombre;
+
+            // Cargar avatar
+            if (datos.avatar === 'custom' && datos.imagenAvatar) {
+                avatarUsuario.src = datos.imagenAvatar;
+            } else if (datos.avatar) {
+                avatarUsuario.src = `assets/${datos.avatar}.png`;
+            }
+
+            console.log('[PRINCIPAL] Perfil cargado:', datos.nombre);
+        }
+
+        // Solo números en el código
+        inputCodigo.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // Unirse a sala existente
+        btnUnirse.addEventListener('click', () => {
+            const codigo = inputCodigo.value.trim();
+
+            if (!codigo || codigo.length !== 7) {
+                mostrarError('Ingresa un código de 7 dígitos');
+                return;
+            }
+
+            console.log('[PRINCIPAL] Intentando unirse a sala:', codigo);
+
+            localStorage.setItem('codigoSala', codigo);
+            localStorage.setItem('esAnfitrion', 'false');
+
+            window.location.href = 'SalaEspera.html';
+        });
+
+        // Crear nueva sala
+        btnCrearSala.addEventListener('click', () => {
+            console.log('[PRINCIPAL] Creando nueva sala...');
+
+            const codigoNuevo = Math.floor(1000000 + Math.random() * 9000000).toString();
+            
+            localStorage.setItem('codigoSala', codigoNuevo);
+            localStorage.setItem('esAnfitrion', 'true');
+
+            console.log('[PRINCIPAL] Sala creada:', codigoNuevo);
+
+            window.location.href = 'SalaEspera.html';
+        });
+
+        // Botón de configuración
+        btnConfiguracion.addEventListener('click', () => {
+            const confirmar = confirm('¿Deseas cerrar sesión y volver a seleccionar usuario?');
+            if (confirmar) {
+                localStorage.removeItem('perfilUsuario');
+                window.location.href = 'SeleccionUsuario.html';
+            }
+        });
+
+        // Mostrar mensaje de error
+        function mostrarError(mensaje) {
+            mensajeError.textContent = `Error: ${mensaje}`;
+            mensajeError.style.display = 'block';
+            inputCodigo.style.borderColor = '#ff3333';
+
+            setTimeout(() => {
+                mensajeError.style.display = 'none';
+                inputCodigo.style.borderColor = '#f4d03f';
+            }, 3000);
+        }
+
+        // Presionar Enter en el input
+        inputCodigo.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                btnUnirse.click();
+            }
+        });
+
+        // Inicializar
+        cargarPerfilUsuario();
+
+        console.log('[PRINCIPAL] Pantalla principal cargada');
+    </script>
+</body>
 </html>

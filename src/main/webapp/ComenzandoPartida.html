@@ -14,8 +14,67 @@
        alt="Cargando partida"
        class="imagen-carga">
 
-  <h2 class="subtitulo-partida">Jugadores listos 3/4</h2>
+  <h2 class="subtitulo-partida" id="subtituloPartida">Jugadores listos 0/4</h2>
 </div>
+
+<script>
+    const subtituloPartida = document.getElementById('subtituloPartida');
+    
+    let jugadoresListos = 0;
+    let totalJugadores = 0;
+
+    // Cargar información de jugadores
+    function inicializarCarga() {
+        const jugadores = JSON.parse(localStorage.getItem('jugadoresPartida') || '[]');
+        totalJugadores = jugadores.length;
+        jugadoresListos = 0;
+
+        console.log('[CARGA] Iniciando partida con', totalJugadores, 'jugadores');
+
+        simularCargaJugadores();
+    }
+
+    // Simular carga progresiva de jugadores
+    function simularCargaJugadores() {
+        const intervalo = setInterval(() => {
+            if (jugadoresListos < totalJugadores) {
+                jugadoresListos++;
+                actualizarSubtitulo();
+            } else {
+                clearInterval(intervalo);
+                
+                setTimeout(() => {
+                    console.log('[CARGA] ¡Todos listos! Iniciando juego...');
+                    window.location.href = 'Tablero.html';
+                }, 1500);
+            }
+        }, 800);
+    }
+
+    // Actualizar texto del subtítulo
+    function actualizarSubtitulo() {
+        subtituloPartida.textContent = `Jugadores listos ${jugadoresListos}/${totalJugadores}`;
+        
+        if (jugadoresListos === totalJugadores) {
+            subtituloPartida.style.animation = 'parpadeo 0.5s infinite';
+        }
+    }
+
+    // Agregar animación de parpadeo al CSS dinámicamente
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Inicializar al cargar
+    window.addEventListener('load', inicializarCarga);
+
+    console.log('[CARGA] Pantalla de carga de partida iniciada');
+</script>
 
 </body>
 </html>

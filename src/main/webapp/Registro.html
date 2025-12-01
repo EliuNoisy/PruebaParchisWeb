@@ -1,26 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Parchís Star</title>
-
     <link rel="stylesheet" href="css/registro.css">
 </head>
-
 <body>
-
     <div class="container">
-
-        
         <h1 class="titulo">Parchís<br>Star</h1>
 
         <!-- BOTÓN REGISTRARSE -->
-        <button class="boton-registrarse" onclick="location.href='index.html'">
+        <button class="boton-registrarse" id="btnRegistrarse">
             <img src="assets/Estrella.png" class="icono-estrella" alt="">
             Registrarse
         </button>
-
     </div>
 
+    <script>
+        const btnRegistrarse = document.getElementById('btnRegistrarse');
+        
+        btnRegistrarse.addEventListener('click', () => {
+            console.log('[REGISTRO] Usuario presionó Registrarse');
+            
+            btnRegistrarse.style.transform = 'translateY(-5px)';
+            
+            setTimeout(() => {
+                btnRegistrarse.style.transform = 'translateY(0)';
+                window.location.href = 'SeleccionUsuario.html';
+            }, 200);
+        });
+
+        btnRegistrarse.addEventListener('mouseenter', () => {
+            btnRegistrarse.style.transition = 'all 0.3s ease';
+        });
+    </script>
 </body>
 </html>
