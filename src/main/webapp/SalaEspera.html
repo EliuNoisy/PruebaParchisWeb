@@ -111,66 +111,66 @@
 
         // Conectar al servidor WebSocket
         function conectarWebSocket() {
-            // Puerto 8080 es el puerto fijo del servidor
-            const puertosAPrueba = [8080, 8081, 8082, 9000];
-            let indexPuerto = 0;
+        // Lista de puertos comunes a probar
+        const puertosAPrueba = [8080, 8081, 8082, 9000, 3000];
+        let indexPuerto = 0;
 
-            function intentarConexion() {
-                if (indexPuerto >= puertosAPrueba.length) {
-                    alert('⚠️ No se pudo conectar al servidor.\n\nAsegúrate de:\n1. Ejecutar ParchisWeb.java\n2. El servidor debe estar en el puerto 8080');
-                    console.error('[WS] Agotados todos los puertos');
-                    return;
-                }
-
-                const puerto = puertosAPrueba[indexPuerto];
-                console.log(`[WS] Intentando conectar al puerto ${puerto}...`);
-
-                try {
-                    webSocket = new WebSocket(`ws://localhost:${puerto}`);
-
-                    webSocket.onopen = () => {
-                        console.log(`[WS] ✓ Conectado exitosamente al puerto ${puerto}`);
-
-                        const perfil = JSON.parse(localStorage.getItem('perfilUsuario'));
-                        const codigo = localStorage.getItem('codigoSala');
-
-                        webSocket.send(JSON.stringify({
-                            accion: 'UNIRSE_SALA',
-                            codigoSala: codigo,
-                            jugador: {
-                                nombre: perfil.nombre,
-                                avatar: perfil.avatar
-                            }
-                        }));
-
-                        // Guardar puerto exitoso para Tablero.html
-                        localStorage.setItem('puertoWebSocket', puerto);
-                    };
-
-                    webSocket.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        manejarMensaje(data);
-                    };
-
-                    webSocket.onerror = (error) => {
-                        console.log(`[WS] Puerto ${puerto} falló, probando siguiente...`);
-                        indexPuerto++;
-                        setTimeout(intentarConexion, 500);
-                    };
-
-                    webSocket.onclose = () => {
-                        console.log('[WS] Desconectado del servidor');
-                    };
-
-                } catch (error) {
-                    console.error(`[WS] Error en puerto ${puerto}:`, error);
-                    indexPuerto++;
-                    setTimeout(intentarConexion, 500);
-                }
+        function intentarConexion() {
+            if (indexPuerto >= puertosAPrueba.length) {
+                alert('No se pudo conectar al servidor en ningún puerto. Asegúrate de ejecutar ParchisWeb.java');
+                console.error('[WS] Agotados todos los puertos');
+                return;
             }
 
-            intentarConexion();
+            const puerto = puertosAPrueba[indexPuerto];
+            console.log(`[WS] Intentando conectar al puerto ${puerto}...`);
+
+            try {
+                webSocket = new WebSocket(`ws://localhost:${puerto}`);
+
+                webSocket.onopen = () => {
+                    console.log(`[WS] ✓ Conectado exitosamente al puerto ${puerto}`);
+
+                    const perfil = JSON.parse(localStorage.getItem('perfilUsuario'));
+                    const codigo = localStorage.getItem('codigoSala');
+
+                    webSocket.send(JSON.stringify({
+                        accion: 'UNIRSE_SALA',
+                        codigoSala: codigo,
+                        jugador: {
+                            nombre: perfil.nombre,
+                            avatar: perfil.avatar
+                        }
+                    }));
+
+                    // Guardar puerto exitoso para Tablero.html
+                    localStorage.setItem('puertoWebSocket', puerto);
+                };
+
+                webSocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    manejarMensaje(data);
+                };
+
+                webSocket.onerror = (error) => {
+                    console.log(`[WS] Puerto ${puerto} falló, probando siguiente...`);
+                    indexPuerto++;
+                    setTimeout(intentarConexion, 500);
+                };
+
+                webSocket.onclose = () => {
+                    console.log('[WS] Desconectado del servidor');
+                };
+
+            } catch (error) {
+                console.error(`[WS] Error en puerto ${puerto}:`, error);
+                indexPuerto++;
+                setTimeout(intentarConexion, 500);
+            }
         }
+
+        intentarConexion();
+    }
 
         // Manejar mensajes del servidor
         function manejarMensaje(data) {
