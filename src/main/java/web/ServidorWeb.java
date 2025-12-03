@@ -13,18 +13,17 @@ import java.util.Map;
  */
 public class ServidorWeb extends WebSocketServer {
     
-    private int puertoReal;
+    private int puertoReal; // ⬅️ NUEVO: guardar el puerto real usado
     private Gson gson;
     private AdaptadorJuego adaptador;
     
     /**
-     * Constructor que usa puerto 8080 fijo
+     * Constructor que busca un puerto disponible automáticamente
      */
     public ServidorWeb() {
-        super(new InetSocketAddress(8080)); // Puerto fijo 8080
+        super(new InetSocketAddress(0)); // ⬅️ 0 = puerto automático
         this.gson = new Gson();
         this.adaptador = null;
-        this.puertoReal = 8080;
     }
     
     public void setAdaptador(AdaptadorJuego adaptador) {
@@ -80,6 +79,7 @@ public class ServidorWeb extends WebSocketServer {
     
     @Override
     public void onStart() {
+        // ⬅️ NUEVO: obtener el puerto real asignado
         puertoReal = getPort();
         System.out.println("\n================================================");
         System.out.println("   SERVIDOR WEBSOCKET ACTIVO");
